@@ -4,23 +4,28 @@ using FFTW; fft
 using Plots; default(label="")
 plotly();
 
+#read in the tone file
 file = "project2.wav"
 (X, S,) = wavread(file)
 soundsc(X, S)
 
-
+#reshape the matrix and plot 
 @show N = (length(X) ÷ 12)
 y = reshape(X, N, 12)
 plot(y[1:100, 1])
 
+#use FFT to find freqeuncies
+f = (0:N-1) / N * S
+f2 = fft(y, 1)
+freq = abs.(f2)
+plot(freq)
 
-Z = abs.(fft(y, 1))
-
-i = 1
+#Iterate through and find the two freqeuncies for each tone
+for i = 1:12
+    Y = freq[:,i]
     c = 2:N÷2
-    n = Z[:,i]
+    #n = Z[:,i]
     min = 10;
-    peak = (n[c] > n[c - 1]) & (n[c] > n[c + 1]) & (n[c] > min)
-    @show i, 
-  
-plot(abs.(Z), xlabel="frequency index l=k+1", ylabel="Z[l]")
+    peak = @. (Y[c] > Y[c-1]) & (Y[c] > Y[c+1]) & (Y[c] > min)
+    @show i, f[c[peak]]
+end 
