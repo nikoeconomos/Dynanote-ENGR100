@@ -5,7 +5,7 @@ using Plots; default(label="")
 plotly();
 
 #read in the tone file
-file = "project2.wav"
+file = "engr100-trombones/proj2.wav"
 (X, S,) = wavread(file)
 soundsc(X, S)
 
