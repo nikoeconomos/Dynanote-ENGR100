@@ -5,11 +5,11 @@ using Plots; default(label="")
 plotly();
 
 #read in the tone file
-file = "engr100-trombones/proj2.wav"
+file = "engr100-trombones/project2.wav"
 (X, S,) = wavread(file)
 soundsc(X, S)
 
-#reshape the matrix and plot 
+#reshape the matrix and plot based on the length of the tones
 @show N = (length(X) ÷ 12)
 y = reshape(X, N, 12)
 plot(y[1:100, 1])
@@ -21,7 +21,7 @@ freq = abs.(f2)
 plot(freq)
 
 #Iterate through and find the two freqeuncies for each tone
-for i = 1:12
+for i in 1:12
     Y = freq[:,i]
     c = 2:N÷2
     #n = Z[:,i]
