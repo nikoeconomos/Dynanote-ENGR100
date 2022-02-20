@@ -70,7 +70,7 @@ end
 function end_button_clicked(w) # callback function for "end" button
     println("The end button")
     sound(tone, S) # play the entire phone number
-    wavwrite(tone, "proj2.wav"; Fs=S) # save phone number tones to file
+    wavwrite(tone, "touch.wav"; Fs=S) # save phone number tones to file
 end
 
 function clear_button_clicked(w)

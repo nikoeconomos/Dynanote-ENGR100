@@ -3,7 +3,8 @@ using Sound
 
 file = "touch.wav"
 (x, S, _, _) = wavread(file)
-N = length(x); S = 8192
+#x = x-1
+@show N = length(x); #S = 8192
 
 freq1 = [697, 770, 852, 941]
 freq2 = [941, 1209, 1336]
@@ -25,12 +26,13 @@ for i in 1:num_buttons_pressed
     i2 = argmax(corr2) # "argument that maximizes"
 
     if index == 10
-        phone_number += "*"
-    else if index == 11
-        phone_number += "0"
-    else if index == 12
-        phone_number += "#"
+        global phone_number += "*"
+    elseif index == 11
+        global phone_number += "0"
+    elseif index == 12
+        global phone_number += "#"
     else
-        phone_number += i2 + (i1 .- 1)*3
-
+        global phone_number += i2 + (i1 .- 1)*3
+    end
+end
 print(phone_number)
