@@ -2,6 +2,7 @@ using Sound: soundsc
 using WAV: wavread
 using FFTW; fft
 using Plots
+include("Proj2_transcriber_fin.jl")
 
 file = "touch.wav"
 (x, S, _, _) = wavread(file)
