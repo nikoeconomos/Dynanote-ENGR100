@@ -14,7 +14,7 @@ for level=1:10 #10 different noise levels
         noise  = 5 * level * randn(size(x))
         y = x + noise
         noise += sum(noise.^2)
-
+        # apply our transcriber to the signal here
         if "output does != 1"
             errors[level] += 1
         end
