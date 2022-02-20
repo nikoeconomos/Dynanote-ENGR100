@@ -4,7 +4,8 @@ using FFTW; fft
 using Plots
 
 S = 8192
-x = cos.(2pi*(1:4096)*696/S) .+ cos.(2pi*(1:4096)*1210/S) #signal for button 1?
+x = cos.(2pi*(1:4096)*696/S) .+ cos.(2pi*(1:4096)*1210/S) 
+soundsc(x, S) #play signal 1
 errors = zeros(Int, 10)
 snr  = zeros(10)
 
@@ -13,6 +14,7 @@ for level=1:10 #10 different noise levels
     for trial=1:100 # 100 trials for each noise level
         noise  = 5 * level * randn(size(x))
         y = x + noise
+        soundsc(y,S) #play signal 1 with noise
         noise += sum(noise.^2)
         # apply our transcriber to the signal here
         if "output does != 1"

@@ -24,6 +24,7 @@ for i in 1:num_buttons_pressed
     s2 = sin.(2π * freq2 * (1:4096)'/S) * temp_x
     corr2 = s2.^2 + c2.^2
     i2 = argmax(corr2) # "argument that maximizes"
+    
 
     if index == 10
         global phone_number += "*"
