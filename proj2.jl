@@ -19,6 +19,7 @@ f = (0:N-1) / N * S
 f2 = fft(y, 1)
 freq = abs.(f2)
 plot(freq)
+xlims!(1,1200)
 
 #Iterate through and find the two freqeuncies for each tone
 for i in 1:12
