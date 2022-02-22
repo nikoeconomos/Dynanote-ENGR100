@@ -4,12 +4,12 @@ using WAV: wavread
 using WAV: wavwrite
 
 S = 8192 # sampling rate (samples/second) for this low-fi project
-tone = Float32[] # initialize "song" as an empty vector
+tone = Float32[] # initialize "tone" as an empty vector
 
 function tones(f1::Real, f2::Real, nsample::Int = 4096)
     x = cos.(2pi*(1:nsample)*f1/S) .+ sin.(2pi*(1:nsample)*f2/S) # generate sinusoidal tone
     sound(x, S) # play note so that user can hear it immediately
-    global tone = [tone; x] # append note to the (global) song vector
+    global tone = [tone; x] # append note to the (global) tone vector
     return nothing
 end
 
@@ -69,8 +69,8 @@ end
 
 function end_button_clicked(w) # callback function for "end" button
     println("The end button")
-    sound(tone, S) # play the entire song when user clicks "end"
-    wavwrite(tone, "touch.wav"; Fs=S) # save song to file
+    sound(tone, S) # play the entire number when user clicks "end"
+    wavwrite(tone, "touch.wav"; Fs=S) # save number to file
 end
 
 function clear_button_clicked(w) # callback for clear, sets tone to an empty array

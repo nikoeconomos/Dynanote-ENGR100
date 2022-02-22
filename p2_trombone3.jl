@@ -16,7 +16,7 @@ for level=1:10 # 10 different noise levels
         global y = x + noise # this will be very noisy!
         noisesum += sum(noise.^2)
         # apply your transcriber to signal "y" here
-        global value = (transcriber(y)[1] != "7")
+        global value = (transcriber(y)[1] != "7") #tone 7 on phone keypad
         if value == true
             errors[level] += 1
         end
