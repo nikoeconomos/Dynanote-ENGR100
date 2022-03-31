@@ -10,7 +10,8 @@ function pitch_increase(octaves, steps)
     
     S = 44100
     t = (1:S/2)/S
-    data = cos.(2*pi*440*t)
+    # data = cos.(2*pi*440*t)
+    data, S = record(2)
     soundsc(data,S)
     
     if steps > 0
@@ -42,8 +43,9 @@ end
 
 function pitch_decrease(octaves, steps)
     S = 44100
-    t = (1:S/2)/S
-    data = cos.(2*pi*440*t)
+    # t = (1:S/2)/S
+    # data = cos.(2*pi*440*t)
+    data, S = record(2)
     @show length(data)
 
     soundsc(data, S)
