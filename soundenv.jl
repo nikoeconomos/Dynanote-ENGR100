@@ -1,5 +1,10 @@
 # sound envelope modifications
 
+function asdr(
+
+
+
+
 using MIRT: interp1 # one of many Julia interpolators
 S = 44100
 N = Int(1.5 * S)
