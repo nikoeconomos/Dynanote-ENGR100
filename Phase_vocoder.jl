@@ -11,7 +11,7 @@ function pitch_increase(octaves, steps)
     S = 44100
     t = (1:S/2)/S
     data = cos.(2*pi*440*t)
-    @show typeof(data)
+
     N = length(data)
     # data, S = wavread("proj3test.wav")
     soundsc(data,S)
@@ -38,10 +38,10 @@ function pitch_increase(octaves, steps)
         @show length(Y)
         soundsc(Y,S)
 
-        Yz = 2/N*fft(Y)
-        plot(abs.(Yz), xlabel="frequency index l=k+1", ylabel="|Y[l]|")
-        xlims!(1,2000)
-        title!("Spectrum of cos.(2*pi*440*t), Octave Higher")
+        # Yz = 2/N*fft(Y)
+        # plot(abs.(Yz), xlabel="frequency index l=k+1", ylabel="|Y[l]|")
+        # xlims!(1,2000)
+        # title!("Spectrum of cos.(2*pi*440*t), Octave Higher")
     end
 end
 function pitch_decrease(octaves, steps)
