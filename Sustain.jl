@@ -19,17 +19,29 @@ function sustain()
     file = "piano_note.wav"
     (data, S, _, _) = wavread(file)
     data = data[:, 1]
-    data = vec(data)
     N = length(data)
-    D2 = 2/N * fft(data, 1) # 1D fft of each column of y2
+    data = reshape(vec(data), length(data), 1)
 
+    println(data[1])
+    println(data[100])
+    println(data[10000])
+    println(data[15000])
+    println(data[14000])
+    println(data[13500:14000])
+    
+    # for value in data:
+
+    
+    
+    D2 = 2/N * fft(data, 1) # 1D fft of each column of y2
+    plotly();
     p1 = plot(abs.(D2), xlabel="frequency index l=k+1", ylabel="|Y[l]|")
     xlims!(1, 1+N÷2);
+
     p2 = heatmap(abs.(D2), xlabel="time segment", ylabel="l=k+1") # 
     p3 = plot(data, ylabel="amplitude")
 
-    #plot(p1, p2, p3)
-    plot(p2)
+    plot(p3)
 
 
 
