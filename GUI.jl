@@ -62,10 +62,10 @@ for i in 1:size(black,1) # add the black keys to the grid
     g[start .+ (0:1), 14] = b # put the button in row 1 of the grid
 end
 
-function end_button_cliked(w) # callback function for "end" button
+function end_button_clicked(w) # callback function for "end" button
     println("The end button")
     sound(song, S) # play the entire song when user clicks "end"
-    matwrite("proj1.mat", Dict("song" => song); compress=true) # save song to file
+    wavwrite("proj3.wav", Dict("song" => song); compress=true) # save song to file
 end
 
 function clear_button_clicked(w)
