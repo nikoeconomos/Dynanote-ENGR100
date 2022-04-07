@@ -1,19 +1,15 @@
 using Gtk: GtkGrid, GtkButton, GtkWindow, GAccessor, GtkScale
-using Gtk: GtkCssProvider, GtkStyleProvider
+using Gtk: GtkCssProvider, GtkStyleProvider, GtkImage
 using Gtk: set_gtk_property!, signal_connect, showall
 using PortAudio: PortAudioStream
 using MAT: matwrite
 using Gtk.ShortNames, GtkReactive
 using PNGFiles
-using Sound: phase_vocoder, soundsc, hann, record
+using Sound: phase_vocoder, hann, record, sound
 using DSP: spectrogram
 using MIRTjim: jim, prompt
 using InteractiveUtils: versioninfo
 using FFTW: fft, ifft
-
-
-# initialize two global variables used throughout
-
 
 notneeded = Float32[]
 
@@ -50,16 +46,24 @@ set_gtk_property!(g, :column_homogeneous, true)
 # define the "style" of the black keys
 sharp = GtkCssProvider(data="#wb {color:white; background:black;}")
 #  add a style for the end button
+label = Label("Hello")
+clearbut = GtkCssProvider(data="#wb {color:white; background:black;}")
+reverbbut = GtkCssProvider(data="#wb {color:white; background:black;}")
+delaybut = GtkCssProvider(data="#wb {color:white; background:black;}")
+decaybut = GtkCssProvider(data="#wb {color:white; background:black;}")
+attackbut = GtkCssProvider(data="#wb {color:white; background:black;}")
+releasebut = GtkCssProvider(data="#wb {color:white; background:black;}")
+tremolobut = GtkCssProvider(data="#wb {color:white; background:black;}")
+sustainbut = GtkCssProvider(data="#wb {color:white; background:black;}")
+logobut = GtkCssProvider(data="#wb {color:white; background:black;}")
+whole_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
+half_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
+quarter_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
+eighth_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
+sixteenth_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
 
-clearbut = GtkCssProvider(data="#wb {color:black; background:red;}")
-reverbbut = GtkCssProvider(data="#wb {color:black; background:red;}")
-delaybut = GtkCssProvider(data="#wb {color:black; background:red;}")
-decaybut = GtkCssProvider(data="#wb {color:black; background:red;}")
-attackbut = GtkCssProvider(data="#wb {color:black; background:red;}")
-releasebut = GtkCssProvider(data="#wb {color:black; background:red;}")
-tremolobut = GtkCssProvider(data="#wb {color:black; background:red;}")
-sustainbut = GtkCssProvider(data="#wb {color:black; background:red;}")
-logobut = GtkCssProvider(data="#wb {color:black; background:red;}")
+
+
 
 
 for i in 1:size(white,1) # add the white keys to the grid
@@ -80,8 +84,8 @@ end
 
 function call_play(w) # callback function for "end" button
     println("Play")
-    @async soundsc(song, S) # play the entire recording
-    soundsc(data, S)
+    @async sound(song, S) # play the entire recording
+    sound(data, S)
     matwrite("proj1.mat", Dict("song" => song); compress=true) # save song to file 
 end
 
@@ -114,19 +118,10 @@ function make_button(string, callback, column, stylename, styledata)
     set_gtk_property!(b, :name, stylename)
     return b
 end
-#function make_button1(string, callback, column, stylename, styledata)
-    #rec_icon = PNGFiles.load("Record icon .png")
-    #b = Button(Image(Pixbuf(string=rec_icon, has_alpha=false)))
-    #signal_connect((w) -> callback(w), b, "clicked")
-    #g[column,3:4] = b
-    #s = GtkCssProvider(data = "#$stylename {$styledata}")
-    #push!(GAccessor.style_context(b), GtkStyleProvider(s), 600)
-    #set_gtk_property!(b, :name, stylename)
-    #return b
-#end
-br = make_button("Record", call_record, 10:12, "wr", "color:white; background:red;")
-bs = make_button("Stop", call_stop, 13:15, "yb", "color:yellow; background:blue;")
-bp = make_button("Play", call_play, 16:18, "wg", "color:white; background:green;")
+
+br = make_button("Record", call_record, 10:12, "wr", "color:white; background:black;")
+bs = make_button("Stop", call_stop, 13:15, "yb", "color:white; background:black;")
+bp = make_button("Play", call_play, 16:18, "wg", "color:white; background:black;")
 function record_loop!(in_stream, buf)
     global maxtime
     global S
@@ -183,37 +178,69 @@ function sustain_slider(w)
 
 end
 
+function whole_note(w)
+    println("Whole Note")
+
+end
+
+function half_note(w)
+    println("Half Note")
+
+end
+
+
+function quarter_note(w)
+    println("Quarter Note")
+
+end
+
+function eighth_note(w)
+    println("Eight Note")
+
+end
+
+function sixteenth_note(w)
+    println("Sixteenth Note")
+
+end
+
 
 clearbutton = GtkButton("clear")
-
-
+g[1:3, 10:11] = clearbutton
 sustain_slider_button = slider(1:0.5:10)
+text_box = textbox(Float64; signal=signal(sustain_slider_button))
+g[1:9, 3:4] = text_box
 g[1:9, 1:2] = sustain_slider_button
 decay_button = GtkButton("Decay")
-g[1:3,6:7] = decay_button
+g[1:3,7:8] = decay_button
 reverb_button = GtkButton("Reverb")
-g[4:6, 6:7] = reverb_button 
+g[4:6, 7:8] = reverb_button 
 attack_button  = GtkButton("Attack")
-g[1:3, 3:4] = attack_button 
+g[1:3, 5:6] = attack_button 
 release_button  = GtkButton("Release")
-g[4:6, 3:4] = release_button
+g[4:6, 5:6] = release_button
 tremolo_button  = GtkButton("Tremolo")
-g[7:9, 6:7] = tremolo_button
+g[7:9, 7:8] = tremolo_button
 delay_button = GtkButton("Delay")
-g[7:9, 3:4]= delay_button
+g[7:9, 5:6]= delay_button
 logo_button = GtkButton("DYNANOTE")
 g[10:18, 1:2]= logo_button
-
- # fill up entire row 3 of grid - why not?
-g[1:3, 10:11] = clearbutton
+whole_note_button = GtkButton("Whole Note")
+g[10:12, 7:8] = whole_note_button
+half_note_button = GtkButton("Half Note")
+#g[10:12, 13:15] = half_note_button 
+quarter_note_button = GtkButton("Quarter Note")
+#g[13:15, 16:18] = quarter_note_button
+eighth_note_button = GtkButton("Eight Note")
+#g[7:9, 10:12] = eighth_note_button
+sixteenth_note_button = GtkButton("Sixteenth Note") 
+#g[10:12, 13:15] = sixteenth_note_button
+img_back = GtkImage("Image .jpeg")
+g[1:18,1:18] = img_back
 
 set_gtk_property!(clearbutton, :name, "wb")
 signal_connect(clear_button_clicked, clearbutton, "clicked")
 push!(GAccessor.style_context(clearbutton), GtkStyleProvider(clearbut), 600)
-
-#set_gtk_property!(record_stop_button, :name, "wb")
-#signal_connect(record_stop_clicked, record_stop_button, "clicked")
-#push!(GAccessor.style_context(record_stop_button), GtkStyleProvider(recordbut), 600)
 
 set_gtk_property!(decay_button, :name, "wb")
 signal_connect(decay_clicked, decay_button, "clicked")
@@ -242,13 +269,25 @@ set_gtk_property!(delay_button, :name, "wb")
 signal_connect(delay_clicked, delay_button, "clicked")
 push!(GAccessor.style_context(delay_button), GtkStyleProvider(delaybut), 600)
 
+set_gtk_property!(whole_note_button, :name, "wb")
+signal_connect(whole_note, whole_note_button, "clicked")
+push!(GAccessor.style_context(whole_note_button), GtkStyleProvider(whole_note_but), 600)
 
-#sl = slider(1:11)
-#set_gtk_property!(sustain_slider_button, :name, "wb")
-#signal_connect(sustain_slider, sustain_slider_button, "slided")
-#push!(GAccessor.style_context(sustain_slider_button), GtkStyleProvider(sustainbut), 600)
-    
+set_gtk_property!(half_note_button, :name, "wb")
+signal_connect(half_note, half_note_button, "clicked")
+push!(GAccessor.style_context(half_note_button,), GtkStyleProvider(half_note_but), 600)
 
+set_gtk_property!(quarter_note_button, :name, "wb")
+signal_connect(quarter_note, quarter_note_button, "clicked")
+push!(GAccessor.style_context(quarter_note_button), GtkStyleProvider(quarter_note_but), 600)
+
+set_gtk_property!(eighth_note_button, :name, "wb")
+signal_connect(eighth_note, eighth_note_button, "clicked")
+push!(GAccessor.style_context(eighth_note_button), GtkStyleProvider(eighth_note_but), 600)
+
+set_gtk_property!(sixteenth_note_button, :name, "wb")
+signal_connect(sixteenth_note, sixteenth_note_button, "clicked")
+push!(GAccessor.style_context(sixteenth_note_button), GtkStyleProvider(sixteenth_note_but), 600)
 
 win = GtkWindow("DAW", 1000, 1000); # 400×300 pixel window for all the buttons
 push!(win,g) # put button grid into the window
