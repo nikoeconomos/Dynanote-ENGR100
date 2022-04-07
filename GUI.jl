@@ -1,28 +1,43 @@
-using Gtk
-using Sound: sound, record
+using Gtk: GtkGrid, GtkButton, GtkWindow, GAccessor, GtkScale
+using Gtk: GtkCssProvider, GtkStyleProvider
+using Gtk: set_gtk_property!, signal_connect, showall
+using PortAudio: PortAudioStream
 using MAT: matwrite
 using Gtk.ShortNames, GtkReactive
+using PNGFiles
+using Sound: phase_vocoder, soundsc, hann, record
+using DSP: spectrogram
+using MIRTjim: jim, prompt
+using InteractiveUtils: versioninfo
+using FFTW: fft, ifft
+
 
 # initialize two global variables used throughout
-S = 7999 # sampling rate (samples/second) for this low-fi project
-global song = Float32[] # initialize "song" as an empty vector
-notneeded = Float32[]
-global data;
 
+
+notneeded = Float32[]
+
+const S = 44100 # sampling rate (samples/second)
+const N = 1024 # buffer length
+const maxtime = 10 # maximum recording time 10 seconds (for demo)
+recording = nothing # flag
+nsample = 0 # count number of samples recorded
+song = nothing # initialize "song"
+global data = Float32[]
 
 
 function miditone(midi::Int; nsample::Int = 2000)
     f = 440 * 2^((midi- 69)/12) # compute frequency from midi number 
     x = cos.(2pi*(1:nsample)*f/S) # generate sinusoidal tone
-    sound(x, S) # play note so that user can hear it immediately
-    global song = [song; x] # append note to the (global) song vector
+    soundsc(x, S) # play note so that user can hear it immediately
+    global data = [data; x] # append note to the (global) song vector
     return nothing
 end
 
 
 # define the white and black keys and their midi numbers 
-white = ["G" 67; "A" 69; "B" 71; "C" 72; "D" 74; "E" 76;"F" 77; "G" 79]
-black = ["G" 68 2; "A" 70 4; "C" 73 8; "D" 75 10; "F" 78 14]
+white = ["F" 53; "G" 55; "A" 57; "B" 59; "C" 60; "D" 62; "E" 64;"F" 65; "G" 67; "A" 69; "B" 71; "C" 72; "D" 74; "E" 76;"F" 77]
+black = ["F" 54 2; "G" 56 4; "A" 58 6; "C" 61 10; "D" 63 12;"F" 66 16; "G" 68 18; "A" 70 20; "C" 73 24; "D" 75 26]
 
 
 g = GtkGrid() # initialize a grid to hold buttons
@@ -35,9 +50,8 @@ set_gtk_property!(g, :column_homogeneous, true)
 # define the "style" of the black keys
 sharp = GtkCssProvider(data="#wb {color:white; background:black;}")
 #  add a style for the end button
-endbut = GtkCssProvider(data="#wb {color:yellow; background:blue;}")
+
 clearbut = GtkCssProvider(data="#wb {color:black; background:red;}")
-recordbut = GtkCssProvider(data="#wb {color:black; background:red;}")
 reverbbut = GtkCssProvider(data="#wb {color:black; background:red;}")
 delaybut = GtkCssProvider(data="#wb {color:black; background:red;}")
 decaybut = GtkCssProvider(data="#wb {color:black; background:red;}")
@@ -46,6 +60,8 @@ releasebut = GtkCssProvider(data="#wb {color:black; background:red;}")
 tremolobut = GtkCssProvider(data="#wb {color:black; background:red;}")
 sustainbut = GtkCssProvider(data="#wb {color:black; background:red;}")
 logobut = GtkCssProvider(data="#wb {color:black; background:red;}")
+
+
 for i in 1:size(white,1) # add the white keys to the grid
     key, midi = white[i,1:2]
     b = GtkButton(key) # make a button for this key
@@ -66,18 +82,82 @@ function end_button_clicked(w) # callback function for "end" button
     println("The end button")
     sound(song, S) # play the entire song when user clicks "end"
     wavwrite("proj3.wav", Dict("song" => song); compress=true) # save song to file
+function call_play(w) # callback function for "end" button
+    println("Play")
+    @async soundsc(song, S) # play the entire recording
+    soundsc(data, S)
+    matwrite("proj1.mat", Dict("song" => song); compress=true) # save song to file 
+end
+
+function call_stop(w)
+    global recording = false
+    global nsample
+    duration = round(nsample / S, digits=2)
+    sleep(0.1) # ensure the async record loop finished
+    flush(stdout)
+    println("\nStop at nsample=$nsample, for $duration out of $maxtime sec.")
+    global song = song[1:nsample] # truncate song to the recorded duration
+end
+
+function call_record(w)
+    global N
+    in_stream = PortAudioStream(1, 0) # default input device
+    buf = read(in_stream, N) # warm-up
+    global recording = true
+    global song = zeros(Float32, maxtime * S)
+    @async record_loop!(in_stream, buf)
+    nothing
+end
+
+function make_button(string, callback, column, stylename, styledata)
+    b = GtkButton(string)
+    signal_connect((w) -> callback(w), b, "clicked")
+    g[column,3:4] = b
+    s = GtkCssProvider(data = "#$stylename {$styledata}")
+    push!(GAccessor.style_context(b), GtkStyleProvider(s), 600)
+    set_gtk_property!(b, :name, stylename)
+    return b
+end
+#function make_button1(string, callback, column, stylename, styledata)
+    #rec_icon = PNGFiles.load("Record icon .png")
+    #b = Button(Image(Pixbuf(string=rec_icon, has_alpha=false)))
+    #signal_connect((w) -> callback(w), b, "clicked")
+    #g[column,3:4] = b
+    #s = GtkCssProvider(data = "#$stylename {$styledata}")
+    #push!(GAccessor.style_context(b), GtkStyleProvider(s), 600)
+    #set_gtk_property!(b, :name, stylename)
+    #return b
+#end
+br = make_button("Record", call_record, 10:12, "wr", "color:white; background:red;")
+bs = make_button("Stop", call_stop, 13:15, "yb", "color:yellow; background:blue;")
+bp = make_button("Play", call_play, 16:18, "wg", "color:white; background:green;")
+function record_loop!(in_stream, buf)
+    global maxtime
+    global S
+    global N
+    global recording
+    global song
+    global nsample
+    Niter = floor(Int, maxtime * S / N)
+    println("\nRecording up to Niter=$Niter ($maxtime sec).")
+    for iter in 1:Niter
+        if !recording
+            break
+        end
+        read!(in_stream, buf)
+        song[(iter-1)*N .+ (1:N)] = buf # save buffer to song
+        nsample += N
+        print("\riter=$iter/$Niter nsample=$nsample")
+    end
+    nothing
 end
 
 function clear_button_clicked(w)
     println("The clear button")
-    global song = Float32[];
+    global data = Float32[];
+    global song = nothing;
 end
 
-function record_stop_clicked(w)
-    println("Record (Start & Stop)")
-    S = 44100
-    global data, S = record(2);
-end
 
 function decay_clicked(w)
     println("Decay");
@@ -104,40 +184,40 @@ end
 
 function sustain_slider(w)
     println("Sustain")
+
 end
 
-ebutton = GtkButton("Play") # make an "play" button
+
 clearbutton = GtkButton("clear")
 
-record_stop_button = GtkButton("Record ")
-g[1:3,1:2] = record_stop_button
-sustain_slider_button = GtkScale(false, 0:0.5:10)
-g[4:9, 1:2] = sustain_slider_button
+
+sustain_slider_button = slider(1:0.5:10)
+g[1:9, 1:2] = sustain_slider_button
 decay_button = GtkButton("Decay")
-g[1:3,7:8] = decay_button
+g[1:3,6:7] = decay_button
 reverb_button = GtkButton("Reverb")
-g[4:6, 7:8] = reverb_button 
+g[4:6, 6:7] = reverb_button 
 attack_button  = GtkButton("Attack")
-g[1:3, 4:5] = attack_button 
+g[1:3, 3:4] = attack_button 
 release_button  = GtkButton("Release")
-g[4:6, 4:5] = release_button
+g[4:6, 3:4] = release_button
 tremolo_button  = GtkButton("Tremolo")
-g[7:9, 7:8] = tremolo_button
+g[7:9, 6:7] = tremolo_button
 delay_button = GtkButton("Delay")
-g[7:9, 4:5]= delay_button
+g[7:9, 3:4]= delay_button
 logo_button = GtkButton("DYNANOTE")
 g[10:18, 1:2]= logo_button
 
-g[10:12, 4:5] = ebutton # fill up entire row 3 of grid - why not?
+ # fill up entire row 3 of grid - why not?
 g[1:3, 10:11] = clearbutton
 
 set_gtk_property!(clearbutton, :name, "wb")
 signal_connect(clear_button_clicked, clearbutton, "clicked")
 push!(GAccessor.style_context(clearbutton), GtkStyleProvider(clearbut), 600)
 
-set_gtk_property!(record_stop_button, :name, "wb")
-signal_connect(record_stop_clicked, record_stop_button, "clicked")
-push!(GAccessor.style_context(record_stop_button), GtkStyleProvider(recordbut), 600)
+#set_gtk_property!(record_stop_button, :name, "wb")
+#signal_connect(record_stop_clicked, record_stop_button, "clicked")
+#push!(GAccessor.style_context(record_stop_button), GtkStyleProvider(recordbut), 600)
 
 set_gtk_property!(decay_button, :name, "wb")
 signal_connect(decay_clicked, decay_button, "clicked")
@@ -166,16 +246,12 @@ set_gtk_property!(delay_button, :name, "wb")
 signal_connect(delay_clicked, delay_button, "clicked")
 push!(GAccessor.style_context(delay_button), GtkStyleProvider(delaybut), 600)
 
+
 #sl = slider(1:11)
 #set_gtk_property!(sustain_slider_button, :name, "wb")
 #signal_connect(sustain_slider, sustain_slider_button, "slided")
 #push!(GAccessor.style_context(sustain_slider_button), GtkStyleProvider(sustainbut), 600)
     
-signal_connect(end_button_clicked, ebutton, "clicked") # callback
-
-push!(GAccessor.style_context(ebutton), GtkStyleProvider(endbut), 600)
-
-set_gtk_property!(ebutton, :name, "wb")
 
 
 win = GtkWindow("DAW", 1000, 1000); # 400×300 pixel window for all the buttons
