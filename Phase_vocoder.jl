@@ -13,8 +13,8 @@ function pitch_increase(octaves, steps)
     data = cos.(2*pi*440*t)
 
     N = length(data)
-    # data, S = wavread("proj3test.wav")
-    soundsc(data,S)
+    # data, S = record(1)
+    soundsc(data, S)
     if steps > 0
         octaves = octaves + 2
         y = phase_vocoder(data, S; hopin=121, hopout=(octaves*121))
@@ -38,17 +38,14 @@ function pitch_increase(octaves, steps)
         @show length(Y)
         soundsc(Y,S)
 
-        # Yz = 2/N*fft(Y)
-        # plot(abs.(Yz), xlabel="frequency index l=k+1", ylabel="|Y[l]|")
-        # xlims!(1,2000)
-        # title!("Spectrum of cos.(2*pi*440*t), Octave Higher")
     end
 end
 function pitch_decrease(octaves, steps)
-    S = 44100
-    t = (1:S/2)/S
-    data = cos.(2*pi*440*t)
+    # S = 44100
+    # t = (1:S/2)/S
+    # data = cos.(2*pi*440*t)
     # data, S = wavread("proj3test.wav")
+    # data, S = record(2)
     soundsc(data,S)   
     N = length(data)
     
@@ -63,8 +60,4 @@ function pitch_decrease(octaves, steps)
     @show length(Snew)
     soundsc(Snew, S)
     
-    # Y = 2/N*fft(Snew)
-    # plot(abs.(Y), xlabel="frequency index l=k+1", ylabel="|Y[l]|")
-    # xlims!(1,2000)
-    # title!("Spectrum of cos.(2*pi*440*t), Octave Lower")
 end

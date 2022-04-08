@@ -13,8 +13,8 @@ using FFTW: fft, ifft
 
 notneeded = Float32[]
 
-const S = 44100 # sampling rate (samples/second)
-const N = 1024 # buffer length
+# const S = 44100 # sampling rate (samples/second)
+# const N = 1024 # buffer length
 const maxtime = 10 # maximum recording time 10 seconds (for demo)
 recording = nothing # flag
 nsample = 0 # count number of samples recorded
