@@ -13,8 +13,8 @@ using FFTW: fft, ifft
 
 notneeded = Float32[]
 
-# const S = 44100 # sampling rate (samples/second)
-# const N = 1024 # buffer length
+const S = 44100 # sampling rate (samples/second)
+const N = 1024 # buffer length
 const maxtime = 10 # maximum recording time 10 seconds (for demo)
 recording = nothing # flag
 nsample = 0 # count number of samples recorded
@@ -50,8 +50,8 @@ label = Label("Hello")
 clearbut = GtkCssProvider(data="#wb {color:white; background:black;}")
 reverbbut = GtkCssProvider(data="#wb {color:white; background:black;}")
 delaybut = GtkCssProvider(data="#wb {color:white; background:black;}")
-decaybut = GtkCssProvider(data="#wb {color:white; background:black;}")
-attackbut = GtkCssProvider(data="#wb {color:white; background:black;}")
+adsrbut = GtkCssProvider(data="#wb {color:white; background:black;}")
+attackdecaybut = GtkCssProvider(data="#wb {color:white; background:black;}")
 releasebut = GtkCssProvider(data="#wb {color:white; background:black;}")
 tremolobut = GtkCssProvider(data="#wb {color:white; background:black;}")
 sustainbut = GtkCssProvider(data="#wb {color:white; background:black;}")
@@ -61,10 +61,6 @@ half_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
 quarter_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
 eighth_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
 sixteenth_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
-
-
-
-
 
 for i in 1:size(white,1) # add the white keys to the grid
     key, midi = white[i,1:2]
@@ -150,11 +146,11 @@ function clear_button_clicked(w)
 end
 
 
-function decay_clicked(w)
+function attack_decay_clicked(w)
     println("Decay");
 end
 
-function attack_clicked(w)
+function ADSR_clicked(w)
     println("Attack");
 end
 
@@ -205,54 +201,54 @@ function sixteenth_note(w)
 end
 
 
-clearbutton = GtkButton("clear")
-g[1:3, 10:11] = clearbutton
+clearbutton = GtkButton("Clear")
+g[16:18, 7:8] = clearbutton
 sustain_slider_button = slider(1:0.5:10)
+g[1:9, 3:4] = sustain_slider_button
 text_box = textbox(Float64; signal=signal(sustain_slider_button))
-g[1:9, 3:4] = text_box
-g[1:9, 1:2] = sustain_slider_button
-decay_button = GtkButton("Decay")
-g[1:3,7:8] = decay_button
+g[1:9, 5:6] = text_box
+attack_decay_button = GtkButton("Attack-Decay")
+g[1:3,9:10] = attack_decay_button
 reverb_button = GtkButton("Reverb")
-g[4:6, 7:8] = reverb_button 
-attack_button  = GtkButton("Attack")
-g[1:3, 5:6] = attack_button 
+g[4:6, 9:10] = reverb_button 
+ADSR_button  = GtkButton("ADSR")
+g[1:3, 7:8] = ADSR_button 
 release_button  = GtkButton("Release")
-g[4:6, 5:6] = release_button
+g[4:6, 7:8] = release_button
 tremolo_button  = GtkButton("Tremolo")
-g[7:9, 7:8] = tremolo_button
+g[7:9, 9:10] = tremolo_button
 delay_button = GtkButton("Delay")
-g[7:9, 5:6]= delay_button
+g[7:9, 7:8]= delay_button
 logo_button = GtkButton("DYNANOTE")
-g[10:18, 1:2]= logo_button
+g[1:30, 1:2]= logo_button
 whole_note_button = GtkButton("Whole Note")
-g[10:12, 7:8] = whole_note_button
+g[10:12, 5:6] = whole_note_button
 half_note_button = GtkButton("Half Note")
-#g[10:12, 13:15] = half_note_button 
+g[13:15, 5:6] = half_note_button 
 quarter_note_button = GtkButton("Quarter Note")
-#g[13:15, 16:18] = quarter_note_button
+g[16:18, 5:6] = quarter_note_button
 eighth_note_button = GtkButton("Eight Note")
-#g[7:9, 10:12] = eighth_note_button
+g[10:12, 7:8] = eighth_note_button
 sixteenth_note_button = GtkButton("Sixteenth Note") 
-#g[10:12, 13:15] = sixteenth_note_button
+g[13:15, 7:8] = sixteenth_note_button
 img_back = GtkImage("Image .jpeg")
-g[1:18,1:18] = img_back
+g[1:30,1:18] = img_back
 
 set_gtk_property!(clearbutton, :name, "wb")
 signal_connect(clear_button_clicked, clearbutton, "clicked")
 push!(GAccessor.style_context(clearbutton), GtkStyleProvider(clearbut), 600)
 
-set_gtk_property!(decay_button, :name, "wb")
-signal_connect(decay_clicked, decay_button, "clicked")
-push!(GAccessor.style_context(decay_button), GtkStyleProvider(decaybut), 600)
+set_gtk_property!(attack_decay_button, :name, "wb")
+signal_connect(attack_decay_clicked, attack_decay_button, "clicked")
+push!(GAccessor.style_context(attack_decay_button), GtkStyleProvider(adsrbut), 600)
 
 set_gtk_property!(reverb_button, :name, "wb")
 signal_connect(reverb_clicked, reverb_button, "clicked")
 push!(GAccessor.style_context(reverb_button), GtkStyleProvider(reverbbut), 600)
 
-set_gtk_property!(attack_button, :name, "wb")
-signal_connect(attack_clicked, attack_button, "clicked")
-push!(GAccessor.style_context(attack_button), GtkStyleProvider(attackbut), 600)
+set_gtk_property!(ADSR_button, :name, "wb")
+signal_connect(ADSR_clicked, ADSR_button, "clicked")
+push!(GAccessor.style_context(ADSR_button), GtkStyleProvider(adsrbut), 600)
 
 set_gtk_property!(release_button, :name, "wb")
 signal_connect(release_clicked, release_button, "clicked")
