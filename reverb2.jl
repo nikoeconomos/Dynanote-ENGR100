@@ -26,24 +26,24 @@ EchoOne= Float32[]
 append!(EchoOne, zeros(D-1), 44100)
 append!(EchoOne, dataVec, 44100)
 append!(EchoOne, zeros(3*D), 44100)
-EchoOne= EchoOne.*0.9
+EchoOne= EchoOne.*0.7
 
 EchoTwo= Float32[]
 append!(EchoTwo, zeros((2*D)-1), 44100)
 append!(EchoTwo, dataVec, 44100)
 append!(EchoTwo, zeros(2*D), 44100)
-EchoTwo= EchoTwo.*0.8
+EchoTwo= EchoTwo.*0.5
 
 EchoThree= Float32[]
 append!(EchoThree, zeros((3*D)-1), 44100)
 append!(EchoThree, dataVec, 44100)
 append!(EchoThree, zeros(D), 44100)
-EchoThree= EchoThree.*0.7
+EchoThree= EchoThree.*0.3
 
 EchoFour= Float32[]
 append!(EchoFour, zeros((4*D)-1), 44100)
 append!(EchoFour, dataVec, 44100)
-EchoFour= EchoFour.*0.6
+EchoFour= EchoFour.*0.1
 
 finalSound=BaseSound+EchoOne+EchoTwo+EchoThree
 sound(finalSound, 44100)
