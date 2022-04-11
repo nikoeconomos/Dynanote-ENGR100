@@ -16,18 +16,25 @@ function find_envelope(x; h::Int = 101) # sliding window half-width
     
 end
 
-
-function sustain()
+function get_num_samples(note_type, bpm)
+    notes = Dict("whole" => 240, "key2" => 120, "quarter" => 60, "eighth" => 30 "sixteenth" => 15)
     S = 44100
-    
-    #data, S = record(2);
+
+    return (notes(note_type)/bpm)*S
+end
+
+
+function sustain(data)
+    S = 44100
     
     #t = (1:S/2)/S
     #data = cos.(2*pi*440*t)
 
-    file = "piano_note.wav"
-    (data, S, _, _) = wavread(file)
-    data = data[:, 1]
+    # file = "piano_note.wav"
+    # (data, S, _, _) = wavread(file)
+    # data = data[:, 1]
+
+    
 
     N = length(data)
     #data = reshape(vec(data), length(data), 1) #for spectrogram
@@ -46,17 +53,21 @@ function sustain()
     p4 = plot((1:N)/S, env, label="envelope", xlabel="t [sec]")
     title!("Sound Envelope for a Middle C Piano Note")
 
-    plot(p4)
+    plot(p1,p2,p3,p4)
 
 
     # Take start and fin sample
     # for each element between start and end, add append them to the spot between the final sample x amount of time
 
-    start = 80000
-    finish = 100000
+    start = 15000
+    finish = 75000
     modified_data = vec(data)[1:finish]
 
-    numrepetitions = 4;
+    
+
+
+
+    numrepetitions = 2;
     for n in 1:numrepetitions
         append!(modified_data, reverse(data[start:finish]))
         append!(modified_data, data[start:finish])
@@ -69,13 +80,9 @@ function sustain()
     vline!([start], color = "green")
     vline!([finish], color = "red")
 
-
-    
-    
-
-
 end
 
     
-
-sustain()
+data, S = record(2);
+bpm = 60
+sustain(data, bpm)
