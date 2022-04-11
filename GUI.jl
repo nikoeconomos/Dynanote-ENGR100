@@ -106,62 +106,182 @@ function pitch_decrease(data, octaves, steps)
     # soundsc(Snew, S)
     return Snew
 end
-# y, S = record(1)
-Nn = length(song)
+function func()
+    Nn = length(song)
 
-Y = abs.(2/Nn*real(fft(y)))
-n = 1+(Nn÷2)
-Yy = Y[1:n]
-A, freq = findmax(Yy)
+    Y = abs.(2/Nn*real(fft(y)))
+    n = 1+(Nn÷2)
+    Yy = Y[1:n]
+    A, freq = findmax(Yy)
 
-@show freq
+    @show freq
 
-midi = round(69 + 12*log2(freq/440))
-println(midi)
-# define the white and black keys and their midi numbers 
-white = ["F" 53; "G" 55; "A" 57; "B" 59; "C" 60; "D" 62; "E" 64;"F" 65; "G" 67; "A" 69; "B" 71; "C" 72; "D" 74; "E" 76;"F" 77]
-black = ["F" 54 2; "G" 56 4; "A" 58 6; "C" 61 10; "D" 63 12;"F" 66 16; "G" 68 18; "A" 70 20; "C" 73 24; "D" 75 26]
+    midi = round(69 + 12*log2(freq/440))
+    println(midi)
+    # define the white and black keys and their midi numbers 
+    white = ["F" 53; "G" 55; "A" 57; "B" 59; "C" 60; "D" 62; "E" 64;"F" 65; "G" 67; "A" 69; "B" 71; "C" 72; "D" 74; "E" 76;"F" 77]
+    black = ["F" 54 2; "G" 56 4; "A" 58 6; "C" 61 10; "D" 63 12;"F" 66 16; "G" 68 18; "A" 70 20; "C" 73 24; "D" 75 26]
 
-keys = [53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77]
-indexArr = indexin(midi, keys)
-position = 0
-if (indexArr .== nothing)
-    if (midi < keys[1])
-         position = 1
-    else
-        position = length(keys)
+    keys = [53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77]
+    indexArr = indexin(midi, keys)
+    position = 0
+    if (indexArr .== nothing)
+        if (midi < keys[1])
+            position = 1
+        else
+            position = length(keys)
+        end
+    else 
+        position = indexArr[1]
     end
-else 
-    position = indexArr[1]
+
+    @show position
+
+    sounds = Vector{Vector{Float32}}()
+
+    for i in 1:position
+        octaves = floor((position - i)/12)
+        steps = mod((position - i), 12)
+        tone = pitch_decrease(y, octaves, steps)
+        push!(sounds, tone)
+        
+    end
+    position = position + 1
+    for j in position:length(keys)
+        octaves = floor(Int64, j/12)
+        steps = mod(j, 12)
+        tone = pitch_increase(y, octaves, steps)
+        push!(sounds, tone)
+    end
+    #######################################################
+    #WHITE buttons
+    b = GtkButton("F") # make a button for this key
+    signal_connect((w) -> get_sound(1), b, "clicked") # callback
+    g[(1:2) .+ 2*(1-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("G") # make a button for this key
+    signal_connect((w) -> get_sound(3), b, "clicked") # callback
+    g[(1:2) .+ 2*(2-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("A") # make a button for this key
+    signal_connect((w) -> get_sound(5), b, "clicked") # callback
+    g[(1:2) .+ 2*(3-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("B") # make a button for this key
+    signal_connect((w) -> get_sound(7), b, "clicked") # callback
+    g[(1:2) .+ 2*(4-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("C") # make a button for this key
+    signal_connect((w) -> get_sound(8), b, "clicked") # callback
+    g[(1:2) .+ 2*(5-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("D") # make a button for this key
+    signal_connect((w) -> get_sound(10), b, "clicked") # callback
+    g[(1:2) .+ 2*(6-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("E") # make a button for this key
+    signal_connect((w) -> get_sound(12), b, "clicked") # callback
+    g[(1:2) .+ 2*(7-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("F") # make a button for this key
+    signal_connect((w) -> get_sound(13), b, "clicked") # callback
+    g[(1:2) .+ 2*(8-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("G") # make a button for this key
+    signal_connect((w) -> get_sound(15), b, "clicked") # callback
+    g[(1:2) .+ 2*(9-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("A") # make a button for this key
+    signal_connect((w) -> get_sound(17), b, "clicked") # callback
+    g[(1:2) .+ 2*(10-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("B") # make a button for this key
+    signal_connect((w) -> get_sound(19), b, "clicked") # callback
+    g[(1:2) .+ 2*(11-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("C") # make a button for this key
+    signal_connect((w) -> get_sound(20), b, "clicked") # callback
+    g[(1:2) .+ 2*(12-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("D") # make a button for this key
+    signal_connect((w) -> get_sound(22), b, "clicked") # callback
+    g[(1:2) .+ 2*(13-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("E") # make a button for this key
+    signal_connect((w) -> get_sound(24), b, "clicked") # callback
+    g[(1:2) .+ 2*(14-1), 15] = b # put the button in row 2 of the grid
+
+    b = GtkButton("F") # make a button for this key
+    signal_connect((w) -> get_sound(25), b, "clicked") # callback
+    g[(1:2) .+ 2*(15-1), 15] = b # put the button in row 2 of the grid
+    # ##############################################################
+    # #BLACK keys
+    b = GtkButton("F" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
+    push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
+    set_gtk_property!(b, :name, "wb") # set "style" of black key
+    signal_connect((w) -> get_sound(2), b, "clicked") # callback
+    g[2 .+ (0:1), 14] = b # put the button in row 1 of the grid
+
+    b = GtkButton("G" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
+    push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
+    set_gtk_property!(b, :name, "wb") # set "style" of black key
+    signal_connect((w) -> get_sound(4), b, "clicked") # callback
+    g[4 .+ (0:1), 14] = b # put the button in row 1 of the grid
+
+    b = GtkButton("A" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
+    push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
+    set_gtk_property!(b, :name, "wb") # set "style" of black key
+    signal_connect((w) -> get_sound(6), b, "clicked") # callback
+    g[6 .+ (0:1), 14] = b # put the button in row 1 of the grid
+
+    b = GtkButton("C" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
+    push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
+    set_gtk_property!(b, :name, "wb") # set "style" of black key
+    signal_connect((w) -> get_sound(9), b, "clicked") # callback
+    g[10 .+ (0:1), 14] = b # put the button in row 1 of the grid
+
+    b = GtkButton("D" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
+    push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
+    set_gtk_property!(b, :name, "wb") # set "style" of black key
+    signal_connect((w) -> get_sound(11), b, "clicked") # callback
+    g[12 .+ (0:1), 14] = b # put the button in row 1 of the grid
+
+    b = GtkButton("F" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
+    push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
+    set_gtk_property!(b, :name, "wb") # set "style" of black key
+    signal_connect((w) -> get_sound(14), b, "clicked") # callback
+    g[16 .+ (0:1), 14] = b # put the button in row 1 of the grid
+
+    b = GtkButton("G" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
+    push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
+    set_gtk_property!(b, :name, "wb") # set "style" of black key
+    signal_connect((w) -> get_sound(16), b, "clicked") # callback
+    g[18 .+ (0:1), 14] = b # put the button in row 1 of the grid
+
+    b = GtkButton("A" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
+    push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
+    set_gtk_property!(b, :name, "wb") # set "style" of black key
+    signal_connect((w) -> get_sound(18), b, "clicked") # callback
+    g[20 .+ (0:1), 14] = b # put the button in row 1 of the grid
+
+    b = GtkButton("C" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
+    push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
+    set_gtk_property!(b, :name, "wb") # set "style" of black key
+    signal_connect((w) -> get_sound(21), b, "clicked") # callback
+    g[24 .+ (0:1), 14] = b # put the button in row 1 of the grid
+
+    b = GtkButton("D" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
+    push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
+    set_gtk_property!(b, :name, "wb") # set "style" of black key
+    signal_connect((w) -> get_sound(23), b, "clicked") # callback
+    g[26 .+ (0:1), 14] = b # put the button in row 1 of the grid
+
+    g = GtkGrid() # initialize a grid to hold buttons
+    set_gtk_property!(g, :row_spacing, 5) # gaps between buttons
+    set_gtk_property!(g, :column_spacing, 5)
+    set_gtk_property!(g, :row_homogeneous, true) # stretch with window resize
+    set_gtk_property!(g, :column_homogeneous, true)
 end
-
-@show position
-
-sounds = Vector{Vector{Float32}}()
-
-for i in 1:position
-    octaves = floor((position - i)/12)
-    steps = mod((position - i), 12)
-    tone = pitch_decrease(y, octaves, steps)
-    push!(sounds, tone)
-    
-end
-position = position + 1
-for j in position:length(keys)
-    octaves = floor(Int64, j/12)
-    steps = mod(j, 12)
-    tone = pitch_increase(y, octaves, steps)
-    push!(sounds, tone)
-end
-
-
-
-g = GtkGrid() # initialize a grid to hold buttons
-set_gtk_property!(g, :row_spacing, 5) # gaps between buttons
-set_gtk_property!(g, :column_spacing, 5)
-set_gtk_property!(g, :row_homogeneous, true) # stretch with window resize
-set_gtk_property!(g, :column_homogeneous, true)
-
 # CONFIGURING THE GUI
 # define the "style" of the black keys
 sharp = GtkCssProvider(data="#wb {color:white; background:black;}")
@@ -187,129 +307,6 @@ function get_sound(index)
     global data = [data; sounds[index]]
     return sounds[index]
 end
-#######################################################
-#WHITE buttons
-
-b = GtkButton("F") # make a button for this key
-signal_connect((w) -> get_sound(1), b, "clicked") # callback
-g[(1:2) .+ 2*(1-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("G") # make a button for this key
-signal_connect((w) -> get_sound(3), b, "clicked") # callback
-g[(1:2) .+ 2*(2-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("A") # make a button for this key
-signal_connect((w) -> get_sound(5), b, "clicked") # callback
-g[(1:2) .+ 2*(3-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("B") # make a button for this key
-signal_connect((w) -> get_sound(7), b, "clicked") # callback
-g[(1:2) .+ 2*(4-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("C") # make a button for this key
-signal_connect((w) -> get_sound(8), b, "clicked") # callback
-g[(1:2) .+ 2*(5-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("D") # make a button for this key
-signal_connect((w) -> get_sound(10), b, "clicked") # callback
-g[(1:2) .+ 2*(6-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("E") # make a button for this key
-signal_connect((w) -> get_sound(12), b, "clicked") # callback
-g[(1:2) .+ 2*(7-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("F") # make a button for this key
-signal_connect((w) -> get_sound(13), b, "clicked") # callback
-g[(1:2) .+ 2*(8-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("G") # make a button for this key
-signal_connect((w) -> get_sound(15), b, "clicked") # callback
-g[(1:2) .+ 2*(9-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("A") # make a button for this key
-signal_connect((w) -> get_sound(17), b, "clicked") # callback
-g[(1:2) .+ 2*(10-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("B") # make a button for this key
-signal_connect((w) -> get_sound(19), b, "clicked") # callback
-g[(1:2) .+ 2*(11-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("C") # make a button for this key
-signal_connect((w) -> get_sound(20), b, "clicked") # callback
-g[(1:2) .+ 2*(12-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("D") # make a button for this key
-signal_connect((w) -> get_sound(22), b, "clicked") # callback
-g[(1:2) .+ 2*(13-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("E") # make a button for this key
-signal_connect((w) -> get_sound(24), b, "clicked") # callback
-g[(1:2) .+ 2*(14-1), 15] = b # put the button in row 2 of the grid
-
-b = GtkButton("F") # make a button for this key
-signal_connect((w) -> get_sound(25), b, "clicked") # callback
-g[(1:2) .+ 2*(15-1), 15] = b # put the button in row 2 of the grid
-# ##############################################################
-# #BLACK keys
-b = GtkButton("F" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
-push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
-set_gtk_property!(b, :name, "wb") # set "style" of black key
-signal_connect((w) -> get_sound(2), b, "clicked") # callback
-g[2 .+ (0:1), 14] = b # put the button in row 1 of the grid
-
-b = GtkButton("G" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
-push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
-set_gtk_property!(b, :name, "wb") # set "style" of black key
-signal_connect((w) -> get_sound(4), b, "clicked") # callback
-g[4 .+ (0:1), 14] = b # put the button in row 1 of the grid
-
-b = GtkButton("A" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
-push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
-set_gtk_property!(b, :name, "wb") # set "style" of black key
-signal_connect((w) -> get_sound(6), b, "clicked") # callback
-g[6 .+ (0:1), 14] = b # put the button in row 1 of the grid
-
-b = GtkButton("C" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
-push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
-set_gtk_property!(b, :name, "wb") # set "style" of black key
-signal_connect((w) -> get_sound(9), b, "clicked") # callback
-g[10 .+ (0:1), 14] = b # put the button in row 1 of the grid
-
-b = GtkButton("D" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
-push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
-set_gtk_property!(b, :name, "wb") # set "style" of black key
-signal_connect((w) -> get_sound(11), b, "clicked") # callback
-g[12 .+ (0:1), 14] = b # put the button in row 1 of the grid
-
-b = GtkButton("F" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
-push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
-set_gtk_property!(b, :name, "wb") # set "style" of black key
-signal_connect((w) -> get_sound(14), b, "clicked") # callback
-g[16 .+ (0:1), 14] = b # put the button in row 1 of the grid
-
-b = GtkButton("G" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
-push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
-set_gtk_property!(b, :name, "wb") # set "style" of black key
-signal_connect((w) -> get_sound(16), b, "clicked") # callback
-g[18 .+ (0:1), 14] = b # put the button in row 1 of the grid
-
-b = GtkButton("A" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
-push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
-set_gtk_property!(b, :name, "wb") # set "style" of black key
-signal_connect((w) -> get_sound(18), b, "clicked") # callback
-g[20 .+ (0:1), 14] = b # put the button in row 1 of the grid
-
-b = GtkButton("C" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
-push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
-set_gtk_property!(b, :name, "wb") # set "style" of black key
-signal_connect((w) -> get_sound(21), b, "clicked") # callback
-g[24 .+ (0:1), 14] = b # put the button in row 1 of the grid
-
-b = GtkButton("D" * "♯") # to make ♯ symbol, type \sharp then hit <tab>
-push!(GAccessor.style_context(b), GtkStyleProvider(sharp), 600)
-set_gtk_property!(b, :name, "wb") # set "style" of black key
-signal_connect((w) -> get_sound(23), b, "clicked") # callback
-g[26 .+ (0:1), 14] = b # put the button in row 1 of the grid
 
 
 function call_play(w) # callback function for "end" button
