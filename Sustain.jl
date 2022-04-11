@@ -8,7 +8,7 @@ using WAV: wavread
 using Plots; default(label="")
 
 
-function find_envelope(x; h::Int = 101) # sliding window half-width
+function find_envelope(x, h::Int = 101) # sliding window half-width
     x = abs.(x)
     return [zeros(h);
     [sum(x[(n-h):(n+h)]) / (2h+1) for n in (h+1):(length(x)-h)];
@@ -17,14 +17,15 @@ function find_envelope(x; h::Int = 101) # sliding window half-width
 end
 
 function get_num_samples(note_type, bpm)
-    notes = Dict("whole" => 240, "key2" => 120, "quarter" => 60, "eighth" => 30 "sixteenth" => 15)
+
+    notes = Dict("whole" => 240, "half" => 120, "quarter" => 60, "eighth" => 30, "sixteenth" => 15)
     S = 44100
 
-    return (notes(note_type)/bpm)*S
+    return (get(notes, note_type, 0)/bpm)*S
 end
 
 
-function sustain(data)
+function test(data)
     S = 44100
     
     #t = (1:S/2)/S
@@ -64,9 +65,6 @@ function sustain(data)
     modified_data = vec(data)[1:finish]
 
     
-
-
-
     numrepetitions = 2;
     for n in 1:numrepetitions
         append!(modified_data, reverse(data[start:finish]))
@@ -82,7 +80,20 @@ function sustain(data)
 
 end
 
+function sustain(data, start, finish, note_type, bpm)
+    
+    modified_data = vec(data)[1:finish]
+    get_num_samples(note_type, bpm)
+
+    numrepetitions = 2;
+    for n in 1:numrepetitions
+        append!(modified_data, reverse(data[start:finish]))
+        append!(modified_data, data[start:finish])
+    end
+    append!(modified_data, data[finish:end])
+end
+
     
 data, S = record(2);
 bpm = 60
-sustain(data, bpm)
+sustain(data, 15000, 75000, "quarter",bpm)
