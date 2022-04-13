@@ -137,7 +137,7 @@ half_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
 quarter_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
 eighth_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
 sixteenth_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
-run_but = GtkCssProvider(data="#wb {color:white; background:black;}")
+run_but = GtkCssProvider(data="#wb {color:black; background:white;}")
 
 global b;
 
@@ -498,7 +498,7 @@ g[7:9, 9:10] = tremolo_button
 delay_button = GtkButton("Delay")
 g[7:9, 7:8]= delay_button
 logo_button = GtkButton("DYNANOTE")
-g[1:30, 1:2]= logo_button
+g[1:18, 1:2]= logo_button
 whole_note_button = GtkButton("Whole Note")
 g[10:12, 5:6] = whole_note_button
 half_note_button = GtkButton("Half Note")
@@ -509,10 +509,10 @@ eighth_note_button = GtkButton("Eight Note")
 g[10:12, 7:8] = eighth_note_button
 sixteenth_note_button = GtkButton("Sixteenth Note") 
 g[13:15, 7:8] = sixteenth_note_button
-ultimate_run_button = GtkButton("Run") 
-g[10:12, 9:10] = ultimate_run_button 
+ultimate_run_button = GtkButton("Generate Synthesizer") 
+g[1:18, 11:15] = ultimate_run_button 
 img_back = GtkImage("Image .jpeg")
-g[1:30,1:15] = img_back
+g[1:18,1:15] = img_back
 
 set_gtk_property!(clearbutton, :name, "wb")
 signal_connect(clear_button_clicked, clearbutton, "clicked")
