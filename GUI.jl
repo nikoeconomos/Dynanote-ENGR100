@@ -169,8 +169,8 @@ function synthesizer(w)
     set_gtk_property!(g, :row_homogeneous, true) # stretch with window resize
     set_gtk_property!(g, :column_homogeneous, true)
     S = 44100
-
-    N = length(song)
+    y, S = record(1)
+    N = length(y)
 
     Y = abs.(2/N*real(fft(y)))
     n = 1+(N÷2)

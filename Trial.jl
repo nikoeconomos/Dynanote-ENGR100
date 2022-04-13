@@ -137,7 +137,7 @@ half_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
 quarter_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
 eighth_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
 sixteenth_note_but = GtkCssProvider(data="#wb {color:white; background:black;}")
-run_but = GtkCssProvider(data="#wb {color:white; background:black;}")
+run_but = GtkCssProvider(data="#wb {color:black; background:white;}")
 
 global b;
 
@@ -170,6 +170,8 @@ function call_record(w)
     global recording = true
     global song = zeros(Float32, maxtime * S)
     @async record_loop!(in_stream, buf)
+    @show length(song)
+    global song = song[1:400000]
     nothing
 end
 
@@ -188,12 +190,12 @@ bs = make_button("Stop", call_stop, 13:15, "yb", "color:white; background:black;
 bp = make_button("Play", call_play, 16:18, "wg", "color:white; background:black;")
 
 function record_loop!(in_stream, buf)
-    global maxtime
+    global maxtime = 1
     global S
     global N
     global recording
     global nsample
-    Niter = floor(Int, maxtime * S / N)
+    Niter = floor(Int, 0.5 * S / N)
     println("\nRecording up to Niter=$Niter ($maxtime sec).")
     for iter in 1:Niter
         if !recording
@@ -498,7 +500,7 @@ g[7:9, 9:10] = tremolo_button
 delay_button = GtkButton("Delay")
 g[7:9, 7:8]= delay_button
 logo_button = GtkButton("DYNANOTE")
-g[1:30, 1:2]= logo_button
+g[1:18, 1:2]= logo_button
 whole_note_button = GtkButton("Whole Note")
 g[10:12, 5:6] = whole_note_button
 half_note_button = GtkButton("Half Note")
@@ -509,10 +511,10 @@ eighth_note_button = GtkButton("Eight Note")
 g[10:12, 7:8] = eighth_note_button
 sixteenth_note_button = GtkButton("Sixteenth Note") 
 g[13:15, 7:8] = sixteenth_note_button
-ultimate_run_button = GtkButton("Run") 
-g[10:12, 9:10] = ultimate_run_button 
+ultimate_run_button = GtkButton("Generate Synthesizer") 
+g[1:18, 11:15] = ultimate_run_button 
 img_back = GtkImage("Image .jpeg")
-g[1:30,1:15] = img_back
+g[1:18,1:15] = img_back
 
 set_gtk_property!(clearbutton, :name, "wb")
 signal_connect(clear_button_clicked, clearbutton, "clicked")
