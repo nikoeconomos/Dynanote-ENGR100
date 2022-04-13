@@ -188,12 +188,12 @@ bs = make_button("Stop", call_stop, 13:15, "yb", "color:white; background:black;
 bp = make_button("Play", call_play, 16:18, "wg", "color:white; background:black;")
 
 function record_loop!(in_stream, buf)
-    global maxtime
+    global maxtime = 1
     global S
     global N
     global recording
     global nsample
-    Niter = floor(Int, maxtime * S / N)
+    Niter = floor(Int, 0.5 * S / N)
     println("\nRecording up to Niter=$Niter ($maxtime sec).")
     for iter in 1:Niter
         if !recording
