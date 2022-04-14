@@ -10,6 +10,7 @@ using DSP: spectrogram
 using MIRTjim: jim, prompt
 using InteractiveUtils: versioninfo
 using FFTW: fft, ifft
+using MIRT: interp1
 
 notneeded = Float32[]
 
@@ -50,15 +51,15 @@ function pitch_increase(data, octaves, steps)
     end
 end
 function pitch_decrease(data, octaves, steps)  
-    N = length(data)
-    
+    Nnn = vec(length(data))
+   
     octaves = octaves - 1
-    N2 = round(Int, N * (octaves + (2^(steps/12))))
-
-    mod(N,2) == 0 || throw("N must be multiple of 2")
+    N2 = round(Int, Nnn * (octaves + (2^(steps/12))))
+  
+    mod(Nnn,2) == 0 || throw("N must be multiple of 2")
     F = fft(data) # original spectrum
-    Fnew = [F[1:N÷2]; zeros(N2); F[(N÷2+1):N]]
-    Snew = 2 * real(ifft(Fnew))[1:N]
+    Fnew = [F[1:Nnn÷2]; zeros(N2); F[(Nnn÷2+1):Nnn]]
+    Snew = 2 * real(ifft(Fnew))[1:Nnn]
     # soundsc(Snew, S)
     return Snew
 end
@@ -190,6 +191,16 @@ end
 
 function ADSR_clicked(w)
     println("ADS");
+    N = length(song)
+    time = (0:N-1)/S
+    t = (N-1)/S
+    a = t * 0.12
+    b = t * 0.24
+    c = t * 0.84
+    d = t * 1
+    env = interp1([0, a, b, c, d], [0, 1, 0.4, 0.4, 0], time)
+    y = 8*env .* song
+    global song = y
 end
 
 function release_clicked(w)
@@ -345,7 +356,6 @@ function ultimate_run(w)
         global position = indexArr[1]
     end
    
-    @show ("Hi")
     global sounds = Vector{Vector{Float32}}()
     
     for i in 1:position
@@ -353,7 +363,6 @@ function ultimate_run(w)
         steps = mod((position - i), 12)
         tone = pitch_decrease(song, octaves, steps)
         push!(sounds, tone)
-        @show ("Hi")
     end
    
     global position = position + 1
@@ -362,9 +371,7 @@ function ultimate_run(w)
         steps = mod(j, 12)
         tone = pitch_increase(song, octaves, steps)
         push!(sounds, tone)
-        @show ("Bye")
     end
-    @show ("Bye")
     
     function get_sound(index)
         sound(sounds[index], S)
@@ -620,3 +627,4 @@ push!(GAccessor.style_context(ultimate_run_button ), GtkStyleProvider(run_but), 
 win = GtkWindow("DAW", 1000, 1000); # 400×300 pixel window for all the buttons
 push!(win,g) # put button grid into the window
 Gtk.showall(win); # display the window full of buttons
+
