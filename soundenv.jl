@@ -3,39 +3,33 @@ using Sound: soundsc
 using Plots
 using WAV: wavread
 
-time = 100
-freq = 460
-type = "asdr"
-y
-S = 44100
-
-function soundenv(time, freq, type)
 
 
-    if type == "staccato"
-        S = 44100
-        N = Int(time * S)
-        t = (0:N-1)/S
-        c = 1 ./ (1:2:1000) # amplitudes    
-        f = (1:2:1000) * freq # frequencies
-        x = +([c[k] * sin.(2π * f[k] * t) for k in 1:length(c)]...) # !!
-        env = (time .- exp.(-80*t)) .* exp.(-3*t) # fast attack; slow decay
-        y = env .* x
-        
-    end
+file = "/Users/ian/Documents/GitHub/engr100-trombones/piano_note.wav"
+(x, S, _, _) = wavread(file)
+data = x[:,1]
+soundsc(data, S)
 
-    if type == "asdr"
-        S = 44100
-        N = Int(time * S)
-        t = (0:N-1)/S
-        c = 1 ./ (1:2:1000) # amplitudes
-        f = (1:2:1000) * freq # frequencies
-        x = sin.(2π * t * f') * c
-        env = interp1([0, time * 0.1, time * 0.2, time * 0.85, time], [0, 1, 0.3, 0.3, 0], t) # !! 
-        y = env .* x
-        
-    end
-
+function fast_attack_decay(stuff)
+    N = length(data)
+    time = (0:N-1)/S
+    env = (time .- exp.(-80*time)) .* exp.(-3*time) # fast attack; slow decay
+    y = env .* stuff
+    return y
 end
 
-soundsc(y, S)
+function asdr(stuff)
+    N = length(data)
+    time = (0:N-1)/S
+    a = time * 0.1
+    b = time * 0.2
+    c = time * 0.85
+    d = time * 1
+    env = interp1([0, a, b, c, d], [0, 1, 0.3, 0.3, 0], time) # !! 
+    y = env .* stuff
+    return y
+end
+
+#lol = fast_attack_decay(data)
+lol = asdr(data)
+soundsc(lol, S)
