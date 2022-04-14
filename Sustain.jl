@@ -80,10 +80,12 @@ function test(data)
 
 end
 
-function sustain(data, start, finish, note_type, bpm)
+function sustain(data)
     
+    start = 50000
+    finish = 350000
+
     modified_data = vec(data)[1:finish]
-    get_num_samples(note_type, bpm)
 
     numrepetitions = 2;
     for n in 1:numrepetitions
