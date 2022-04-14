@@ -22,50 +22,7 @@ global song # initialize "song"
 global data
 
 function add_reverb(dataVec)
-    #read in music
-        # file = "c:/Users/sravy/.julia/engr100-trombones/piano_note.wav"
-        #(data, S, _, _) = wavread(file)
-        #dataVec = data[:,1]
-    
-        L= length(dataVec)
-        #determine division length for echoes
-        d= (floor(L/4))
-        D= trunc(Int, d)
-    
-        #add cushion zeroes to end of dataVec
-        cushion = zeros(4*D)
-        BaseSound= Float64[]
-        append!(BaseSound, dataVec, S)
-        append!(BaseSound, cushion, S)
-        #sound(BaseSound, 44100)
-    
-        EchoOne= Float64[]
-        append!(EchoOne, zeros(D-1), S)
-        append!(EchoOne, dataVec, S)
-        append!(EchoOne, zeros(3*D), S)
-        EchoOne= EchoOne.*0.7
-    
-        EchoTwo= Float64[]
-        append!(EchoTwo, zeros((2*D)-1), S)
-        append!(EchoTwo, dataVec, S)
-        append!(EchoTwo, zeros(2*D), S)
-        EchoTwo= EchoTwo.*0.5
-    
-        EchoThree= Float64[]
-        append!(EchoThree, zeros((3*D)-1), S)
-        append!(EchoThree, dataVec, S)
-        append!(EchoThree, zeros(D), S)
-        EchoThree= EchoThree.*0.3
-    
-        EchoFour= Float64[]
-        append!(EchoFour, zeros((4*D)-1), S)
-        append!(EchoFour, dataVec, S)
-        EchoFour= EchoFour.*0.1
-    
-        finalSound=BaseSound+EchoOne+EchoTwo+EchoThree
-        sound(finalSound, S)
-        show(length(finalSound))
-        return finalSound
+
     end    
 
 function pitch_increase(data, octaves, steps)
@@ -224,6 +181,11 @@ end
 
 function attack_decay_clicked(w)
     println("Attack-Decay");
+    N = length(song)
+    time = (0:N-1)/S
+    env = (time .- exp.(-80*time)) .* exp.(-3*time) # fast attack; slow decay
+    y = 8* env .* song
+    global song = y
 end
 
 function ADSR_clicked(w)
@@ -235,10 +197,57 @@ function release_clicked(w)
 end
 function reverb_clicked(w)
     println("Reverb");
+    
+    L= length(song)
+    #determine division length for echoes
+    d= (floor(L/4))
+    D= trunc(Int, d)
+
+    #add cushion zeroes to end of dataVec
+    cushion = zeros(4*D)
+    BaseSound= Float64[]
+    append!(BaseSound, song, S)
+    append!(BaseSound, cushion, S)
+    #sound(BaseSound, 44100)
+
+    EchoOne= Float64[]
+    append!(EchoOne, zeros(D-1), S)
+    append!(EchoOne, song, S)
+    append!(EchoOne, zeros(3*D), S)
+    EchoOne= EchoOne.*0.7
+
+    EchoTwo= Float64[]
+    append!(EchoTwo, zeros((2*D)-1), S)
+    append!(EchoTwo, song, S)
+    append!(EchoTwo, zeros(2*D), S)
+    EchoTwo= EchoTwo.*0.5
+
+    EchoThree= Float64[]
+    append!(EchoThree, zeros((3*D)-1), S)
+    append!(EchoThree, song, S)
+    append!(EchoThree, zeros(D), S)
+    EchoThree= EchoThree.*0.3
+
+    EchoFour= Float64[]
+    append!(EchoFour, zeros((4*D)-1), S)
+    append!(EchoFour, song, S)
+    EchoFour= EchoFour.*0.1
+
+    finalSound=BaseSound+EchoOne+EchoTwo+EchoThree
+    global song = finalSound
+    sound(song, S)
+    return song
 end
 
 function tremolo_clicked(w)
     println("Tremolo");
+    N = length(song)
+    t = (0:N-1)/S
+
+    lfo = 0.5 .- 0.4 * cos.(2π*10*t) # what frequency?
+    y = lfo .* song
+
+    global song = y
 end
 function delay_clicked(w)
     println("Delay")
@@ -252,23 +261,57 @@ end
 
 function whole_note(w)
     println("Whole Note")
+    start = 5000
+    finish = 19000
 
+    modified_data = vec(song)[1:finish]
+
+    numrepetitions = 3;
+    for n in 1:numrepetitions
+        append!(modified_data, reverse(song[start:finish]))
+        append!(modified_data, song[start:finish])
+    end
+    append!(modified_data, song[finish:end])
+
+    global song = modified_data
 end
 
 function half_note(w)
     println("Half Note")
+    start = 5000
+    finish = 19000
 
+    modified_data = vec(song)[1:finish]
+
+    numrepetitions = 2;
+    for n in 1:numrepetitions
+        append!(modified_data, reverse(song[start:finish]))
+        append!(modified_data, song[start:finish])
+    end
+    append!(modified_data, song[finish:end]) 
+    global song = modified_data
 end
 
 
 function quarter_note(w)
     println("Quarter Note")
+    start = 5000
+    finish = 19000
 
+    modified_data = vec(song)[1:finish]
+
+    numrepetitions = 1;
+    for n in 1:numrepetitions
+        append!(modified_data, reverse(song[start:finish]))
+        append!(modified_data, song[start:finish])
+    end
+    append!(modified_data, song[finish:end])
+    global song = modified_data
 end
 
 function eighth_note(w)
     println("Eight Note")
-
+    
 end
 
 function sixteenth_note(w)
@@ -302,7 +345,7 @@ function ultimate_run(w)
         global position = indexArr[1]
     end
    
-
+    @show ("Hi")
     global sounds = Vector{Vector{Float32}}()
     
     for i in 1:position
@@ -310,16 +353,18 @@ function ultimate_run(w)
         steps = mod((position - i), 12)
         tone = pitch_decrease(song, octaves, steps)
         push!(sounds, tone)
-     
+        @show ("Hi")
     end
+   
     global position = position + 1
     for j in position:length(keys)
         octaves = floor(Int64, j/12)
         steps = mod(j, 12)
         tone = pitch_increase(song, octaves, steps)
         push!(sounds, tone)
+        @show ("Bye")
     end
-   
+    @show ("Bye")
     
     function get_sound(index)
         sound(sounds[index], S)
@@ -475,6 +520,7 @@ function ultimate_run(w)
     win2 = GtkWindow("Synthesizer", 1000, 1000); # 400×300 pixel window for all the buttons
     push!(win2,f) # put button grid into the window
     Gtk.showall(win2); # display the window full of buttons
+    @show ("Please")
 end
 
 clearbutton = GtkButton("Clear")
