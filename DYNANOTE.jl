@@ -22,10 +22,6 @@ nsample = 0 # count number of samples recorded
 global song # initialize "song"
 global data
 
-function add_reverb(dataVec)
-
-    end    
-
 function pitch_increase(data, octaves, steps)
     N = length(data)
     if steps > 0
@@ -40,13 +36,11 @@ function pitch_increase(data, octaves, steps)
         F = fft(Y) # original spectrum
         Fnew = [F[1:N÷2]; zeros(N2); F[(N÷2+1):N]]
         Snew = 2 * real(ifft(Fnew))[1:N]
-        # soundsc(Snew, S)
         return Snew
     else
         octaves +=1
         y = phase_vocoder(data, S; hopin=121, hopout=(octaves*121))
         Y = y[1:octaves:end]
-        # soundsc(Y, S)
         return Y
     end
 end
@@ -60,7 +54,6 @@ function pitch_decrease(data, octaves, steps)
     F = fft(data) # original spectrum
     Fnew = [F[1:N÷2]; zeros(N2); F[(N÷2+1):N]]
     Snew = 2 * real(ifft(Fnew))[1:N]
-    # soundsc(Snew, S)
     return Snew
 end
 
@@ -102,7 +95,6 @@ global b;
 function call_play(w) # callback function for "end" button
     println("Play")
     @async sound(song, S) # play the entire recording
-    #matwrite("proj1.mat", Dict("song" => song); compress=true) # save song to file 
 end
 
 function call_stop(w)
@@ -119,7 +111,6 @@ function call_play_1(w) # callback function for "end" button
     println("Play")
     @async sound(data, S) # play the entire recording
  
-    #matwrite("proj1.mat", Dict("song" => song); compress=true) # save song to file 
 end
 function call_record(w)
     global N
@@ -219,7 +210,6 @@ function reverb_clicked(w)
     BaseSound= Float64[]
     append!(BaseSound, song, S)
     append!(BaseSound, cushion, S)
-    #sound(BaseSound, 44100)
 
     EchoOne= Float64[]
     append!(EchoOne, zeros(D-1), S)
@@ -255,7 +245,7 @@ function tremolo_clicked(w)
     N = length(song)
     t = (0:N-1)/S
 
-    lfo = 0.5 .- 0.4 * cos.(2π*10*t) # what frequency?
+    lfo = 0.5 .- 0.4 * cos.(2π*10*t)
     y = lfo .* song
 
     global song = y
@@ -321,11 +311,13 @@ function quarter_note(w)
 end
 
 function eighth_note(w)
+    #Future implementation
     println("Eight Note")
     
 end
 
 function sixteenth_note(w)
+    #Future implementation
     println("Sixteenth Note")
 
 end
