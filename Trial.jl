@@ -51,15 +51,15 @@ function pitch_increase(data, octaves, steps)
     end
 end
 function pitch_decrease(data, octaves, steps)  
-    Nnn = vec(length(data))
+    N = length(data)
    
     octaves = octaves - 1
-    N2 = round(Int, Nnn * (octaves + (2^(steps/12))))
+    N2 = round(Int, N * (octaves + (2^(steps/12))))
   
-    mod(Nnn,2) == 0 || throw("N must be multiple of 2")
+    mod(N,2) == 0 || throw("N must be multiple of 2")
     F = fft(data) # original spectrum
-    Fnew = [F[1:Nnn÷2]; zeros(N2); F[(Nnn÷2+1):Nnn]]
-    Snew = 2 * real(ifft(Fnew))[1:Nnn]
+    Fnew = [F[1:N÷2]; zeros(N2); F[(N÷2+1):N]]
+    Snew = 2 * real(ifft(Fnew))[1:N]
     # soundsc(Snew, S)
     return Snew
 end
