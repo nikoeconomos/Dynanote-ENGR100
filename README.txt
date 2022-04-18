@@ -15,6 +15,9 @@ program. Disregard these as they do not affect the functionality.
 2. Running the programn should bring you to the main GUI. This 
 GUI various sound modification options.
 
+*The background will be white, which differs from our demonstration
+as the image file must be downloaded locally. 
+
 3. To get started, press the record button to record in a sound. 
 Currently the sample will < 1 second in duration (Part of the end is cut off
 to elminate a clicking noise).
