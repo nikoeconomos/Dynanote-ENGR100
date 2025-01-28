@@ -5,35 +5,28 @@ This project was completed in ENGR 100, the first year engineering design experi
 ------------------
 INSTRUCTIONS:
 
-*Note that to run the program on your system you most likely will
+*Note that to run the program on your system, you will likely
 need to install a few Julia packages. The REPL should give you the 
 command needed to install the package(s): Pfg.add("Package")
 
 1. In the Julia REPL, type include("DYNANOTE.jl") to run the program.
 
-*You may recieve various warnings in the terminal when running the 
-program. Disregard these as they do not affect the functionality.
+*You may receive warnings in the terminal when running the 
+program, which can be ignored.
 
-2. Running the programn should bring you to the main GUI. This 
-GUI various sound modification options.
+2. Running the programn will bring you to the main GUI. This 
+GUI contains buttons for various sound modifications.
 
-*The background will be white, which differs from our demonstration
-as the image file must be downloaded locally. 
+3. To get started, press the record button.
 
-3. To get started, press the record button to record in a sound. 
-Currently the sample will < 1 second in duration (Part of the end is cut off
-to elminate a clicking noise).
-
-4. Preform various sound modifications as desired. Pressing the "play" button will
+4. Add various sound modifications as desired. Pressing the "play" button will
 play the sound back. Pressing the "clear" button allows you to start over.
 
 *In our prototype, the only modifcations avaliable are sustain (Whole Note, Half Note, and
-Quarter Note only), ADSR, Attack-Decay, Reverb, and Tremolo.
+Quarter Note only), ADSR, Attack-Decay, Reverb, and Tremolo. Functionality will be expanded in future iterations.
 
-5. Once you have made the various modifcations, press the "Generate Synthesizer" button
-to create a synthesizer with the sample. This will generate another GUI in which you can 
-record and play back an song.
+5. Once you have made the various modifcations, press the "Generate Synthesizer" button. This will generate another GUI, a piano, in which you can 
+record and play back a song with your edited sample.
 
-*Please note that in our current prototype, the synthesizer only supports generating add 
+*In our current prototype, the synthesizer only supports generating add 
 synthesizer from an original sample and a sample with Tremolo added to it.
-
