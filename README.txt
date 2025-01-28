@@ -1,5 +1,7 @@
 DYNANOTE
 By: Team Trombones
+
+This project was completed in ENGR 100, the first year engineering design experience. This section was about digital signal processing for musical applications. We built a synthesizer that records sounds and modifies the resulting digital signal in pitch, envelope, effects, etc.
 ------------------
 INSTRUCTIONS:
 
